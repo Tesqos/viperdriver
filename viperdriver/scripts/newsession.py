@@ -1,7 +1,8 @@
 import sys
 import logging
 
-from . import KWD_DIR_HOME, SessionDriver
+from . import KWD_DIR_HOME
+from ..src.core import SessionDriver
 
 logger = logging.getLogger(__name__)
 
