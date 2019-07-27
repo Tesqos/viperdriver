@@ -25,7 +25,7 @@ pipeline {
 
       stage('DEPLOY') {
         steps {
-          sh 'pip install --upgrade viperbox'
+          sh 'pip install --upgrade viperdriver'
         }
        }
 

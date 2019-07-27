@@ -1,10 +1,8 @@
 import logging
 
-from viperbox.vebdriver import SessionDriver
-from viperbox.viperlib import jsondata
-from viperbox.viperlib.misc import dir_get
-
-logger = logging.getLogger(__name__)
+from .core import SessionDriver
+from viperlib import jsondata
+from viperlib.misc import dir_get
 
 class logininfo(jsondata):
 

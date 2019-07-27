@@ -7,9 +7,8 @@ During the second execution, the script will discover the file and will pass the
 Then the viperdriver instance will connect to the existing session and will be able to take command of it (in this case hitting a URL and then closing it).
 To execute the script: 'python -m viperbox.examples.conntosession'
 """
-import logging
 from time import sleep
-from . import SessionDriver
+from ..src.core import SessionDriver
 
 logger = logging.getLogger(__name__)
 

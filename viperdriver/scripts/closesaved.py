@@ -1,6 +1,7 @@
 import sys
 
-from . import KWD_DIR_HOME, SessionDriver
+from . import KWD_DIR_HOME
+from ..src.core import SessionDriver
 
 assert len(sys.argv) > 1, 'Location argument required.'
 

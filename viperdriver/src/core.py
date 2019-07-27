@@ -5,7 +5,7 @@ from selenium.webdriver import ChromeOptions
 from selenium.webdriver import IeOptions
 
 from .. import PATH_TMP
-from ...viperlib import jsondata
+from viperlib import jsondata
 
 logger = logging.getLogger(__name__)
 
