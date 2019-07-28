@@ -1,8 +1,7 @@
 import logging
 import os
 
-from .src.core import SessionDriver as SessionDriver
-from .src.website import Websession as Websession
+import logging
 
 console = logging.StreamHandler()
 console.setLevel(logging.DEBUG)
