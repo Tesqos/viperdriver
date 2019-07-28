@@ -3,6 +3,8 @@ import logging
 from viperlib import jsondata
 from .core import SessionDriver
 
+logger = logging.getLogger(__name__)
+
 class logininfo(jsondata):
 
     def __init__(self):
