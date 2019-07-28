@@ -1,8 +1,7 @@
 import logging
 
-from .core import SessionDriver
 from viperlib import jsondata
-from viperlib.misc import dir_get
+from .core import SessionDriver
 
 class logininfo(jsondata):
 
