@@ -111,7 +111,8 @@ class Websession(SessionDriver):
     def __init__(self, login_required=True):
         self.login_required = login_required
         super().__init__()
-        self._credentials = creds()
+        if login_required:
+            self._credentials = creds()
         self.pages = SitePages()
 
     def launch(self):
@@ -133,7 +134,8 @@ class Websession(SessionDriver):
     @data_location.setter
     def data_location(self, val):
         self._dataloc = val
-        self.credentials.location = self._dataloc
+        if self.login_required:
+            self.credentials.location = self._dataloc
         self.pages.location = self._dataloc
         self.pages.get_from_file()
         self.session.location = self._dataloc

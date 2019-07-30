@@ -43,4 +43,5 @@ def test_N_launch_connect_to_existing_session_no_file():
     drv.session.exists = True # however, session file does not exist, which will generate an error
     with pytest.raises(Exception):
         drv.launch()
+    del drv
     # Do NOT add drv.quit() here because session has NOT been created
