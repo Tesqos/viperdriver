@@ -1,0 +1,7 @@
+CREDS_TYPE_PLAIN = 'json'
+CREDS_TYPE_SECURE = 'keyring'
+CREDS_TYPE_SECURE_KEY = 'viperdriver'
+
+CREDS_F_NAME = 'login'
+
+PAGES_F_NAME ='pages'
