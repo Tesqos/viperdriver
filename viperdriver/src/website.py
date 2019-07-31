@@ -3,96 +3,12 @@ import logging
 import keyring
 
 from viperlib import jsondata
+from .creds import creds
 from .core import SessionDriver
 
-from . import CREDS_TYPE_PLAIN, CREDS_TYPE_SECURE, CREDS_F_NAME, PAGES_F_NAME, CREDS_TYPE_SECURE_KEY
+from . import CREDS_TYPE_PLAIN, CREDS_TYPE_SECURE, CREDS_F_NAME, PAGES_F_NAME, CREDS_TYPE_SECURE_KEY_DEFAULT
 
 logger = logging.getLogger(__name__)
-
-class creds:
-
-    _srctype = None
-    _handle = None
-    _loc = None
-    _user = None
-    _contents = None
-
-    @property
-    def user(self):
-        return self._user
-
-    @user.setter
-    def user(self, val):
-        self._user = val
-
-    @property
-    def type(self):
-        return self._srctype
-
-    @type.setter
-    def type(self, val):
-        self._srctype = val
-
-    def load(self):
-        assert self._user is not None, 'User key is not set. (Note: user key is not \'uid\'. Used for naming login info set.)'
-        if self._srctype == CREDS_TYPE_PLAIN:
-            assert self._loc is not None, 'Location is not set.'
-            self._handle = creds_json()
-            self._handle.location = self.location
-            self._handle.get_from_file()
-            self._handle.contents = self._handle.contents[self._user]
-        elif self._srctype == CREDS_TYPE_SECURE:
-            self._handle = creds_keyring()
-            self._handle.keyring_key = self._user
-            self._handle.get_from_keyring()
-        else:
-            raise ValueError('Expected \'json\' or \'keyring\' only.')
-
-    @property
-    def contents(self):
-        return self._handle._contents
-
-    @contents.setter
-    def contents(self, obj):
-        self._handle._contents = obj
-
-    @property
-    def location(self):
-        return self._loc
-
-    @location.setter
-    def location(self, val):
-        self._loc = val
-
-class creds_keyring:
-
-    _krk = None
-    _contents = {}
-
-    @property
-    def keyring_key(self):
-        return self._krk
-
-    @keyring_key.setter
-    def keyring_key(self, val):
-        self._krk = val
-
-    @property
-    def contents(self):
-        return self._contents
-
-    @contents.setter
-    def contents(self, obj):
-        self._contents = obj
-
-    def get_from_keyring(self):
-        self._contents.update( {"uid": self._krk} )
-        self._contents.update( {"pwd": keyring.get_password(CREDS_TYPE_SECURE_KEY, self._krk)} )
-
-class creds_json(jsondata):
-
-    def __init__(self):
-        self.filename = CREDS_F_NAME
 
 
 class SitePages(jsondata):

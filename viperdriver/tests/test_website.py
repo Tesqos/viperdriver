@@ -2,6 +2,7 @@ import keyring
 
 from . import Websession
 from . import dir_config
+from ..src import CREDS_TYPE_PLAIN, CREDS_TYPE_SECURE
 
 test_user = "test user"
 keyring_key = "viperdriver"
@@ -13,16 +14,18 @@ class Test_Credentials:
     y = Websession(login_required=False)
 
     def test_credentials_get_json(self):
-        self.x.credentials.type = 'json'
+        self.x.credentials.type = CREDS_TYPE_PLAIN
         self.x.data_location = dir_config
         self.x.credentials.load()
         assert self.x.credentials.contents["uid"] == "Tester"
 
     def test_credentials_get_keyring(self):
-        self.x.credentials.type = 'keyring'
+        self.x.credentials.type = CREDS_TYPE_SECURE
+        self.x.credentials.user = test_user
+        self.x.credentials.keyring_key = keyring_key
         self.x.credentials.load()
-        assert self.x.credentials.contents["uid"] == test_user
-        assert self.x.credentials.contents["pwd"] == keyring.get_password(keyring_key, test_user)
+        assert self.x.credentials.contents["uid"] == 'Tester'
+        assert self.x.credentials.contents["pwd"] == 'itworks'
 
 
     def test_website_launch_no_login_required(self):
