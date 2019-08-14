@@ -1,14 +1,32 @@
 import sys
+import getopt
+import logging
 
-from . import KWD_DIR_HOME
+from .. import PATH_TMP, logger
 from ..src.core import SessionDriver
 
-assert len(sys.argv) > 1, 'Location argument required.'
+def main():
+    fpath = PATH_TMP
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'l:d', [])
+    except getopt.GetoptError as err:
+        logger.error(err)
+        logger.info(__doc__)
+        sys.exit(2)
+    for opt, args in opts:
+        if opt == '-l':
+            fpath = args
+        if opt == '-d':
+            logger.setLevel(logging.DEBUG)
+    drv = SessionDriver()
+    drv.session.savetofile = False
+    drv.session.location = fpath
+    if drv.session.file_exists():
+        drv.session.exists = True
+        drv.launch()
+        drv.quit()
+    else:
+        logger.info('No saved session found.')
 
 if __name__ == '__main__':
-    drv = SessionDriver()
-    if sys.argv[1] != KWD_DIR_HOME:
-        drv.session.location = sys.argv[1]
-    drv.session_exists = True
-    drv.launch()
-    drv.quit()
+    main()

@@ -57,9 +57,10 @@ class Session(jsondata):
         self._savetofile = val
 
     def destroy(self):
-        sid = self.session_id # saving id for logger; will be destroyed with execution of next line
-        super().destroy()
-        logger.debug('Session ' + sid + ' destroyed.')
+        if not self.is_empty():
+            sid = self.session_id # saving id for logger; will be destroyed with execution of next line
+            super().destroy()
+            logger.debug('Session ' + sid + ' destroyed.')
         self.__init__()
 
 class SessionDriver(Remote):
@@ -79,7 +80,6 @@ class SessionDriver(Remote):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.quit()
 
-
     def launch(self):
         if self.session.exists:
             try:
@@ -95,6 +95,7 @@ class SessionDriver(Remote):
             logger.debug('Session ' + self.session_id + ' created.')
             if self.session.savetofile:
                 self.session.save_to_file()
+        self.set_window_size(400, 200)
 
     def session_connect(self, url=None, sessionid=None):
         if url is not None:

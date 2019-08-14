@@ -35,7 +35,7 @@ def test_session_connect():
     drv = SessionDriver()
     drv.session_connect(session_info[kwd_url], session_info[kwd_sessionid])
     drv.get('https://www.breitbart.com/')
-    assert drv.title == 'Breitbart News Network', 'Looks like we got to a fake news site instead.'
+    assert drv.title == 'Breitbart News Network'
     drv.quit()
 
 def test_N_launch_connect_to_existing_session_no_file():
