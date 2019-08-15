@@ -1,8 +1,9 @@
 import keyring
 
-from . import Websession
-from . import dir_config
-from ..src import CREDS_TYPE_PLAIN, CREDS_TYPE_SECURE
+from viperdriver.src.website import Websession
+from viperdriver.src import CREDS_TYPE_PLAIN, CREDS_TYPE_SECURE
+
+from viperdriver.tests import dir_config
 
 test_user = "test user"
 keyring_key = "viperdriver"

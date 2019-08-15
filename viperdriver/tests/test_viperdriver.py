@@ -1,4 +1,4 @@
-from ..src.core import SessionDriver, f_session, kwd_url, kwd_sessionid
+from viperdriver.src.core import SessionDriver, f_session, kwd_url, kwd_sessionid
 import pytest
 import os
 

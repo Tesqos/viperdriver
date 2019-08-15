@@ -5,24 +5,18 @@ The first execution will create a brand new browser session.
 As the result, the session info will be saved in a file.
 During the second execution, the script will discover the file and will pass the session info from it to the viperdriver instance.
 Then the viperdriver instance will connect to the existing session and will be able to take command of it (in this case hitting a URL and then closing it).
-To execute the script: 'python -m viperbox.examples.conntosession'
+To execute the script: 'python -m viperdriver.examples.conntosession'
 """
-import logging
-
 from time import sleep
-from ..src.core import SessionDriver
-
-logger = logging.getLogger(__name__)
+from viperdriver.src.core import SessionDriver
 
 def launch(drv):
     drv.launch()
-    drv.set_window_size(300, 300)
+    drv.set_window_size(600, 300)
 
-if __name__ == '__main__':
-
-                                        # start vebdriver in visible mode
+def main():
     drv = SessionDriver()
-    drv.options.headless = False
+    drv.options.headless = False         # start viperdriver in visible mode
 
     if drv.session.file_exists():        # if previous session exists, connect to it
         drv.session.exists = True
@@ -45,3 +39,6 @@ if __name__ == '__main__':
         launch(drv)
         drv.session.save_to_file()
         print('Exiting. Please start again.')
+
+if __name__ == '__main__':
+    main()

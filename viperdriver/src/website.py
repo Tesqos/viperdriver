@@ -3,8 +3,8 @@ import logging
 import keyring
 
 from viperlib import jsondata
-from .creds import creds
-from .core import SessionDriver
+from viperdriver.src.creds import creds
+from viperdriver.src.core import SessionDriver
 
 from . import CREDS_TYPE_PLAIN, CREDS_TYPE_SECURE, CREDS_F_NAME, PAGES_F_NAME, CREDS_TYPE_SECURE_KEY_DEFAULT
 

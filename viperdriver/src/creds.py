@@ -1,7 +1,7 @@
 import keyring
 
 from viperlib import jsondata
-from . import *
+from viperdriver.src import *
 
 class creds(jsondata):
 

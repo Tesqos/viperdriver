@@ -4,7 +4,7 @@ from selenium.webdriver import Remote
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver import IeOptions
 
-from .. import PATH_TMP
+from viperdriver import PATH_TMP
 from viperlib import jsondata
 
 logger = logging.getLogger(__name__)

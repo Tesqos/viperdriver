@@ -14,13 +14,17 @@ import os
 import getopt
 import logging
 
-from ..src.core import SessionDriver
-from .. import PATH_TMP, logger
+from viperdriver.scripts import path_session_file, viper_logger, Driver
+
+logger = logging.getLogger(__name__)
+console = logging.StreamHandler()
+logger.addHandler(console)
+viper_logger.addHandler(logger)
 
 def main():
 
     headless = True
-    fpath = PATH_TMP
+    fpath = path_session_file
     savetofile = True
 
     try:
@@ -40,10 +44,11 @@ def main():
             fpath = args
         if opt == '-d':
             logger.setLevel(logging.DEBUG)
+            viper_logger.setLevel(logging.DEBUG)
 
-    drv = SessionDriver()
+    drv = Driver()
     drv.options.headless = headless
-    if fpath != PATH_TMP:
+    if fpath != path_session_file:
         drv.session.location = fpath
     if drv.session.file_exists():
         logger.critical('Existing session found. Exiting.')
