@@ -95,7 +95,6 @@ class SessionDriver(Remote):
             logger.debug('Session ' + self.session_id + ' created.')
             if self.session.savetofile:
                 self.session.save_to_file()
-        self.set_window_size(400, 200)
 
     def session_connect(self, url=None, sessionid=None):
         if url is not None:
