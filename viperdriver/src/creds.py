@@ -1,7 +1,10 @@
+import logging
 import keyring
 
 from viperlib import jsondata
 from viperdriver.src import *
+
+logger = logging.getLogger(__name__)
 
 class creds(jsondata):
 
@@ -39,5 +42,10 @@ class creds(jsondata):
         self._krk = val
 
     def get_from_keyring(self):
-        self.contents.update( {"uid": keyring.get_password(self._krk, self.user)} )
+        try:
+            uid = keyring.get_password(self._krk, self.user)
+        except AttributeError:
+            logger.critical('Could not get value for ' + self.user + ' from keyring key ' + self._krk + '. Make sure the key has been set (python -m keyring set ' + self._krk + ' ' + self.user + ').')
+            exit(2)
+        self.contents.update( {"uid": uid} )
         self.contents.update( {"pwd": keyring.get_password(self.contents["uid"], 'pwd')} )
