@@ -6,6 +6,6 @@ setup(
     author_email='vitolg1@gmail.com',
     license='Apache',
     description='Collection of tools and libraries including custom expansion of Selenium WebDriver.',
-    version='0.49',
+    version='0.49.1',
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests", "test*"])
 )

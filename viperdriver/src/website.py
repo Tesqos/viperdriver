@@ -2,11 +2,8 @@ import logging
 
 import keyring
 
-from viperlib import jsondata
-from viperdriver.src.creds import creds
+from viperlib import creds, jsondata
 from viperdriver.src.core import SessionDriver
-
-from . import CREDS_TYPE_PLAIN, CREDS_TYPE_SECURE, CREDS_F_NAME, PAGES_F_NAME, CREDS_TYPE_SECURE_KEY_DEFAULT
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +11,7 @@ logger = logging.getLogger(__name__)
 class SitePages(jsondata):
 
     def __init__(self):
-        self.filename = PAGES_F_NAME
+        self.filename = 'pages'
 
 class Websession(SessionDriver):
 
@@ -69,8 +66,8 @@ class Websession(SessionDriver):
         return self._credentials
 
     @credentials.setter
-    def credentials(self, data):
-        self._credentials = data
+    def credentials(self, obj):
+        self._credentials = obj
 
     def go_page(self, page_name):
         assert page_name in self.pages.contents, 'Page not defined: ' + page_name + '.'
