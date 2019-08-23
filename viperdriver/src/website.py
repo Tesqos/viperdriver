@@ -48,7 +48,7 @@ class Websession(SessionDriver):
     def data_location(self, val):
         self._dataloc = val
         if self.login_required and self.credentials.type == creds.CREDS_TYPE_PLAIN:
-            self.credentials.get_plain().location = self._dataloc
+            self.credentials.plain.location = self._dataloc
         self.pages.location = self._dataloc
         self.pages.get_from_file()
         self.session.location = self._dataloc
