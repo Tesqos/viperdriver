@@ -3,6 +3,9 @@ import logging
 from selenium.webdriver import Remote
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver import IeOptions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from viperdriver import PATH_TMP
 from viperlib import jsondata
@@ -120,6 +123,11 @@ class SessionDriver(Remote):
         for item in items:
             lst.append(item.get_attribute('text'))
         return lst
+
+    def wait_until(self, timeout, str_condition):
+        ln = 'WebDriverWait(self, ' + str(timeout) + ').until(EC.' + str_condition + ')'
+        logger.debug(ln)
+        return exec(ln)
 
     def quit(self):
         super().quit()
