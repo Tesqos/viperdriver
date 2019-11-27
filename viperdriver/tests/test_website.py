@@ -1,6 +1,6 @@
 import keyring
 
-from viperdriver.src.website import Websession
+from viperdriver import Websession
 from viperdriver.tests import dir_data
 from viperlib import creds
 
@@ -56,7 +56,6 @@ class Test_Credentials:
         # 2) the whole test package run with 'pytest'
         # If only the current file is run or only the test alone (with 'pytest -k' ), the test does not fail even with the line commented.
         # It is even more puzzling considering that ..session.exists is False by default.
-        self.y.session.exists = False
         self.y.session.savetofile = False
         self.y.data_location = dir_data
         self.y.launch()

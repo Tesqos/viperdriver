@@ -3,67 +3,51 @@ import logging
 from selenium.webdriver import Remote
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver import IeOptions
+import selenium.common.exceptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from viperdriver import PATH_TMP
+from viperdriver import dir_session_default, default_listener, f_session, kwd_listener, kwd_sessionid
 from viperlib import jsondata
 
 logger = logging.getLogger(__name__)
 
-kwd_url = 'url'
-kwd_sessionid = 'sessionid'
-default_listener = 'http://127.0.0.1:9515'
-f_session = 'last_session.json'
-
 class Session(jsondata):
 
     def __init__(self):
-        self.contents = { kwd_url: None, kwd_sessionid: None }
-        self.url =  default_listener
+        self.contents = { kwd_listener: default_listener, kwd_sessionid: None }
         self.filename = f_session
-        self.location = PATH_TMP # default location for saved sessions
-        self._exists = False
-        self._savetofile = True
+        self.location = dir_session_default # default location for saved sessions
 
     @property
-    def url(self):
-        return self.contents[kwd_url]
+    def listener(self):
+        return self.contents[kwd_listener]
 
-    @url.setter
-    def url(self, val):
-        self.contents[kwd_url] = val
+    @listener.setter
+    def listener(self, val):
+        self.contents[kwd_listener] = val
 
     @property
-    def session_id(self):
+    def id(self):
         return self.contents[kwd_sessionid]
 
-    @session_id.setter
-    def session_id(self, val):
+    @id.setter
+    def id(self, val):
         self.contents[kwd_sessionid] = val
 
-    @property
-    def exists(self):
-        return self._exists
+    def reset(self):
+        self.__init__()
 
-    @exists.setter
-    def exists(self, val):
-        self._exists = val
-
-    @property
-    def savetofile(self):
-        return self._savetofile
-
-    @savetofile.setter
-    def savetofile(self, val):
-        self._savetofile = val
+    def clear(self):
+        self.id = None
 
     def destroy(self):
         if not self.is_empty():
-            sid = self.session_id # saving id for logger; will be destroyed with execution of next line
+            sid = self.id # saving id for logger; will be destroyed with execution of next line
             super().destroy()
-            logger.debug('Session ' + sid + ' destroyed.')
+            if sid is not None:
+                logger.debug('Session ' + sid + ' destroyed.')
         self.__init__()
 
 class SessionDriver(Remote):
@@ -83,31 +67,54 @@ class SessionDriver(Remote):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.quit()
 
-    def launch(self):
-        if self.session.exists:
-            try:
-                self.session.get_from_file()
-                self.session_connect()
-                logger.debug('Connected to session ' + self.session.session_id + '.')
-            except:
-                raise Exception('Could not connect to existing session.')
-        else:
-            super().__init__(command_executor=self.session.url, options=self.options)
-            self.session.session_id = self.session_id
-            self.session.exists = True
-            logger.debug('Session ' + self.session_id + ' created.')
-            if self.session.savetofile:
-                self.session.save_to_file()
+    def start_client(self):
+        # For possible future use. Called automatically whenever RemoteWebDriver is initialized.
+        pass
 
-    def session_connect(self, url=None, sessionid=None):
-        if url is not None:
-            self.session.url = url
-        if sessionid is not None:
-            self.session.session_id = sessionid
-        assert self.session.url != None and self.session.session_id != None, __name__ + ": driver session parameters are empty."
-        super().__init__(command_executor=self.session.url, desired_capabilities={}, options=self.options)
+    def stop_client(self):
+        self.session.destroy()
+        self.session_id = None
+        logger.debug('Client destroyed.')
+
+    def client_start_new(self):
+        super().__init__(command_executor=self.session.listener, options=self.options)
+        self.session.id = self.session_id
+        logger.debug('Session ' + self.session.id + ' created.')
+        self.session.save_to_file()
+
+    def client_connect(self, session_info):
+        if session_info is not None and session_info is not []:
+            self.session.contents = session_info
+        assert self.session.listener != None and self.session.id != None, __name__ + ": driver session parameters are empty."
+        super().__init__(command_executor=self.session.listener, desired_capabilities={}, options=self.options)
         self.close()
-        self.session_id = self.session.session_id # do not remove: we need to assign property to RemoteWebDriver parent object
+        self.session_id = self.session.id # do not remove: we need to assign property to RemoteWebDriver parent object
+        self._url = self.current_url
+
+    def client_connect_to_filed(self):
+        try:
+            self.session.file_exists()
+            self.session.get_from_file()
+            self.client_connect(self.session.contents)
+            logger.debug('Connected to session ' + self.session.id + '.')
+        except:
+            raise Exception('Could not connect to existing session.')
+
+    def client_is_connected(self):
+        try:
+            self.current_url
+            return True
+        except (TypeError, AttributeError, selenium.common.exceptions.WebDriverException):
+            return False
+
+    def launch(self, new_session=True, save_session=False):
+        """Allows either launching a brand new session or connecting to a filed one.\nArgs: new_session=True, save_session=False\nTo connect to an existing session by passing the session info as an argument, use client_connect().
+        """
+        if new_session:
+            self.client_start_new()
+        else:
+            assert self.session.file_exists(), 'Could not find session file: ' + self.session.full_path()
+            self.client_connect_to_filed()
 
     def switch_to_window(self, titlestr, strict=False): # strict mode if True: title must match exaclty
        rc = False
@@ -128,8 +135,3 @@ class SessionDriver(Remote):
         ln = 'WebDriverWait(self, ' + str(timeout) + ').until(EC.' + str_condition + ')'
         logger.debug(ln)
         return exec(ln)
-
-    def quit(self):
-        super().quit()
-        if self.session.exists:
-            self.session.destroy()

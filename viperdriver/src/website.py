@@ -3,7 +3,7 @@ import logging
 import keyring
 
 from viperlib import creds, jsondata
-from viperdriver.src.core import SessionDriver
+from viperdriver import SessionDriver
 
 logger = logging.getLogger(__name__)
 
