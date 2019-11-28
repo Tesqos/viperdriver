@@ -19,6 +19,8 @@ class Session(jsondata):
         self.contents = { kwd_listener: default_listener, kwd_sessionid: None }
         self.filename = f_session
         self.location = dir_session_default # default location for saved sessions
+        self.mustsave = False
+        self.mustdelete = True
 
     @property
     def listener(self):
@@ -39,23 +41,18 @@ class Session(jsondata):
     def reset(self):
         self.__init__()
 
-    def clear(self):
-        self.id = None
-
     def destroy(self):
         if not self.is_empty():
             sid = self.id # saving id for logger; will be destroyed with execution of next line
             super().destroy()
             if sid is not None:
                 logger.debug('Session ' + sid + ' destroyed.')
-        self.__init__()
+        self.reset()
 
 class SessionDriver(Remote):
 
-    options = None
-    session = Session()
-
     def __init__(self, browser='Chrome', headless=True):
+        self.session = Session()
         self._browser = browser
         if self._browser is not 'Safari': # no Options exists for Safari
             self.options = eval(self._browser + 'Options()')
@@ -71,16 +68,21 @@ class SessionDriver(Remote):
         # For possible future use. Called automatically whenever RemoteWebDriver is initialized.
         pass
 
-    def stop_client(self):
-        self.session.destroy()
-        self.session_id = None
-        logger.debug('Client destroyed.')
+    def quit(self):
+        if self.client_is_connected():
+            super().quit()
+            self.session.destroy()
+            if not self.client_is_connected():
+                    logger.debug('Client destroyed.')
+        else:
+            logger.debug('No connected client.')
 
     def client_start_new(self):
         super().__init__(command_executor=self.session.listener, options=self.options)
         self.session.id = self.session_id
         logger.debug('Session ' + self.session.id + ' created.')
-        self.session.save_to_file()
+        if self.session.mustsave:
+            self.session.save_to_file()
 
     def client_connect(self, session_info):
         if session_info is not None and session_info is not []:
@@ -107,8 +109,8 @@ class SessionDriver(Remote):
         except (TypeError, AttributeError, selenium.common.exceptions.WebDriverException):
             return False
 
-    def launch(self, new_session=True, save_session=False):
-        """Allows either launching a brand new session or connecting to a filed one.\nArgs: new_session=True, save_session=False\nTo connect to an existing session by passing the session info as an argument, use client_connect().
+    def launch(self, new_session=True):
+        """Either launches a brand new session or connects to a filed one.\nArgs: new_session=True\nTo connect to an existing session by passing the session info as an argument, use client_connect().
         """
         if new_session:
             self.client_start_new()

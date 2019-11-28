@@ -2,10 +2,12 @@ from viperdriver import SessionDriver, f_session, kwd_listener, kwd_sessionid
 import pytest
 import os
 
-def create_session(savetofile=True):
+def create_session():
     """ Auxiliary (not a testing) function."""
     drv = SessionDriver()
-    drv.launch(save_session=True)
+    drv.session.mustsave = True
+    drv.mustdelete=False
+    drv.launch(new_session=True)
     info = drv.session.contents
     return info
 
@@ -27,7 +29,7 @@ def test_launch_connect_to_existing_session():
     drv.quit()
 
 def test_session_connect():
-    session_info = create_session(savetofile=False)
+    session_info = create_session()
     drv = SessionDriver()
     drv.client_connect(session_info)
     drv.get('https://www.breitbart.com/')

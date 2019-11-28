@@ -8,20 +8,15 @@ Then the viperdriver instance will connect to the existing session and will be a
 To execute the script: 'python -m viperdriver.examples.conntosession'
 """
 from time import sleep
-from viperdriver.src.core import SessionDriver
-
-def launch(drv):
-    drv.launch()
-    drv.set_window_size(600, 300)
+from viperdriver import SessionDriver
 
 def main():
     drv = SessionDriver()
     drv.options.headless = False         # start viperdriver in visible mode
 
     if drv.session.file_exists():        # if previous session exists, connect to it
-        drv.session.exists = True
         print('Session file found: ' + drv.session.full_path())
-        launch(drv)
+        drv.launch(new_session=False)
         print('Will now navigate to Google in:')
         x = range(5)
         for i in x:
@@ -36,7 +31,8 @@ def main():
         print('\n')
         drv.quit()
     else:                               # if session does not exist, create new one and save to file
-        launch(drv)
+        drv.launch(new_session=True)
+        drv.set_window_size(600, 300)
         drv.session.save_to_file()
         print('Exiting. Please start again.')
 
