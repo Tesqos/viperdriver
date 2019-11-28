@@ -19,7 +19,7 @@ class Session(jsondata):
         self.contents = { kwd_listener: default_listener, kwd_sessionid: None }
         self.filename = f_session
         self.location = dir_session_default # default location for saved sessions
-        self.mustsave = False
+        self.mustsave = True
         self.mustdelete = True
 
     @property
@@ -63,10 +63,6 @@ class SessionDriver(Remote):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.quit()
-
-    def start_client(self):
-        # For possible future use. Called automatically whenever RemoteWebDriver is initialized.
-        pass
 
     def quit(self):
         if self.client_is_connected():
