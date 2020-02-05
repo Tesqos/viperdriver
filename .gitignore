@@ -13,3 +13,5 @@ viperdriver/examples/__pycache__/conntosession.cpython-37.pyc
 viperdriver/tests/data/login.json
 *.pyc
 *.pyc
+*.pyc
+viperdriver/tmp/last_session.json

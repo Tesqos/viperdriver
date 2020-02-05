@@ -28,8 +28,8 @@ class Websession(SessionDriver):
             self._credentials = creds()
         self.pages = SitePages()
 
-    def launch(self):
-        super().launch()
+    def launch(self, new_session=True):
+        super().launch(new_session)
         self.go_page('Home')
 
     @property

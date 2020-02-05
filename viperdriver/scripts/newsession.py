@@ -21,7 +21,7 @@ def make_session(location=dir_session_default, headless=True):
     drv.options.headless = headless
     drv.session.location = location
     if not drv.session.file_exists():
-        drv.launch(save_session=True)
+        drv.launch()
         logger.debug(drv.session.full_path())
     else:
         logger.critical('Existing session found. Exiting.')
