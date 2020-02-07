@@ -29,5 +29,19 @@ pipeline {
         }
        }
 
+      stage('DOCKER: Make image') {
+        steps('remove old and build new image')     {
+          sh 'docker rmi vipervit/viperdriver:latest --force'
+          sh 'docker build -t vipervit/viperdriver:latest .'
+       }
+     }
+
+     stage('DOCKER: Push image') {
+       steps('push image') {
+         sh 'docker push vipervit/viperdriver:latest'
+       }
+     }
+
+
     }
 }
