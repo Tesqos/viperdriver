@@ -1,5 +1,8 @@
 import logging
 
+import subprocess
+from subprocess import Popen, PIPE, STDOUT, DEVNULL
+
 from selenium.webdriver import Remote
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver import IeOptions
@@ -64,6 +67,20 @@ class SessionDriver(Remote):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.quit()
 
+    def __listener_start__(self):
+        if self._browser == 'Chrome':
+            cmd = 'chromedriver'
+        else:
+            raise NotImplemented
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            subprocess.Popen(cmd)
+        else:
+            subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
+
+    def __drv_launch__(self):
+        self.__listener_start__()
+        super().__init__(command_executor=self.session.listener, desired_capabilities={}, options=self.options)
+
     def quit(self):
         if self.client_is_connected():
             super().quit()
@@ -74,7 +91,7 @@ class SessionDriver(Remote):
             logger.debug('No connected client.')
 
     def client_start_new(self):
-        super().__init__(command_executor=self.session.listener, options=self.options)
+        self.__drv_launch__()
         self.session.id = self.session_id
         logger.debug('Session ' + self.session.id + ' created.')
         if self.session.mustsave:
@@ -84,7 +101,7 @@ class SessionDriver(Remote):
         if session_info is not None and session_info is not []:
             self.session.contents = session_info
         assert self.session.listener != None and self.session.id != None, __name__ + ": driver session parameters are empty."
-        super().__init__(command_executor=self.session.listener, desired_capabilities={}, options=self.options)
+        self.__drv_launch__()
         self.close()
         self.session_id = self.session.id # do not remove: we need to assign property to RemoteWebDriver parent object
         self._url = self.current_url
@@ -109,7 +126,7 @@ class SessionDriver(Remote):
         """Either launches a brand new session or connects to a filed one.\nArgs: new_session=True\nTo connect to an existing session by passing the session info as an argument, use client_connect().
         """
         if new_session:
-            self.client_start_new()
+                self.client_start_new()
         else:
             assert self.session.file_exists(), 'Could not find session file: ' + self.session.full_path()
             self.client_connect_to_filed()

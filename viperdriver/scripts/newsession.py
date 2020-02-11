@@ -16,6 +16,8 @@ import logging
 
 from viperdriver import SessionDriver, dir_session_default, logger, loggers_set
 
+logger = logging.getLogger(__name__)
+
 def make_session(location=dir_session_default, headless=True):
     drv = SessionDriver()
     drv.options.headless = headless
