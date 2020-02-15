@@ -17,31 +17,11 @@ pipeline {
        }
       }
 
-      stage('UPLOAD') {
+      stage('UPLOAD - TEST') {
         steps {
-          sh 'python3 -m twine upload dist/* -u vipervit'
+          sh 'python3 -m twine upload -u vipervit --repository-url https://test.pypi.org/legacy/ dist/*''
         }
        }
-
-      stage('DEPLOY') {
-        steps {
-          sh 'pip install --upgrade viperdriver'
-        }
-       }
-
-      stage('DOCKER: Make image') {
-        steps('remove old and build new image')     {
-          sh 'docker rmi vipervit/viperdriver:latest --force'
-          sh 'docker build -t vipervit/viperdriver:latest .'
-       }
-     }
-
-     stage('DOCKER: Push image') {
-       steps('push image') {
-         sh 'docker push vipervit/viperdriver:latest'
-       }
-     }
-
 
     }
 }

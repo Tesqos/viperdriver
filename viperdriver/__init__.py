@@ -3,6 +3,8 @@ import os
 
 from viperlib import logger as logger_viperlib
 
+__version__ = '0.57.2'
+
 dir_session_default = __path__[0] + os.sep + 'tmp' # default location of the session file
 kwd_listener = 'listener'
 kwd_sessionid = 'sessionid'
