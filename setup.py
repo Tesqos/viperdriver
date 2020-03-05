@@ -16,6 +16,6 @@ setup(
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests", "test*"]),
     install_requires='[viperlib', 'keyring']'
     description='Custom expansion of Selenium WebDriver.',
-    version='0.57.2',
+    version=__version__,
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests", "test*"])
 )

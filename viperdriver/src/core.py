@@ -73,28 +73,29 @@ class SessionDriver(Remote):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.quit()
 
+    def __listener_set__(self):
+        if self.session.listener is None:
+            if self._browser == 'Chrome':
+                self.session.listener = listener_chrome
+            if self._browser == 'Firefox':
+                self.session.listener = listener_firefox
+
     def __listener_start__(self):
+        self.__listener_set__()
         if self._browser == 'Chrome':
             cmd = 'chromedriver'
-            if logger.getEffectiveLevel() == logging.DEBUG:
-                subprocess.Popen(cmd)
-            else:
-                subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
-            time.sleep(1)
+        if self._browser == 'Firefox':
+            cmd = 'geckodriver'
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            subprocess.Popen(cmd)
+        else:
+            subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
+        time.sleep(1)
 
     def __drv_launch__(self):
         browser_profile = None
         capabilities = {}
-        if self._browser == 'Firefox':
-                if self.session.listener is None:
-                    self.session.listener = listener_firefox
-        if self._browser == 'Chrome':
-            self.session.listener = listener_chrome
         self.__listener_start__()
-        if self._browser == 'Firefox':
-            browser_profile = FirefoxProfile()
-            capabilities = DesiredCapabilities.FIREFOX
-            capabilities["marionette"] = False
         super().__init__(command_executor=self.session.listener, desired_capabilities=capabilities, browser_profile = browser_profile, options=self.options)
 
     def quit(self):
@@ -119,8 +120,8 @@ class SessionDriver(Remote):
         assert self.session.listener != None and self.session.id != None, __name__ + ": driver session parameters are empty."
         self.__drv_launch__()
         self.close()
+        self.command_executor._url = session_info[kwd_listener]
         self.session_id = self.session.id # do not remove: we need to assign property to RemoteWebDriver parent object
-        self._url = self.current_url
 
     def client_connect_to_filed(self):
         try:
