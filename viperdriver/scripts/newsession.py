@@ -27,6 +27,7 @@ def make_session(location=dir_session_default, headless=True):
         logger.debug(drv.session.full_path())
     else:
         logger.critical('Existing session found. Exiting.')
+    return drv.session.contents
 
 def main():
 
@@ -51,7 +52,7 @@ def main():
         if opt == '-v':
             loggers_set(logging.DEBUG)
 
-    make_session(fpath, headless)
+    return make_session(fpath, headless)
 
 if __name__ == "__main__":
     main()

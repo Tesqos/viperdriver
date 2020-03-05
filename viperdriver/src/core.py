@@ -1,63 +1,69 @@
 import logging
-
+import time
 import subprocess
 from subprocess import Popen, PIPE, STDOUT, DEVNULL
 
+from selenium import webdriver
 from selenium.webdriver import Remote
 from selenium.webdriver import ChromeOptions
 from selenium.webdriver import IeOptions
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver import FirefoxOptions
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import selenium.common.exceptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from viperdriver import dir_session_default, default_listener, f_session, kwd_listener, kwd_sessionid
-from viperlib import jsondata
+from viperdriver import dir_session_default, listener_chrome, listener_firefox, f_session, kwd_listener, kwd_sessionid
+from jsonnote import jsonnote
 
 logger = logging.getLogger(__name__)
 
-class Session(jsondata):
-
-    def __init__(self):
-        self.contents = { kwd_listener: default_listener, kwd_sessionid: None }
-        self.filename = f_session
-        self.location = dir_session_default # default location for saved sessions
-        self.mustsave = True
-        self.mustdelete = True
-
-    @property
-    def listener(self):
-        return self.contents[kwd_listener]
-
-    @listener.setter
-    def listener(self, val):
-        self.contents[kwd_listener] = val
-
-    @property
-    def id(self):
-        return self.contents[kwd_sessionid]
-
-    @id.setter
-    def id(self, val):
-        self.contents[kwd_sessionid] = val
-
-    def reset(self):
-        self.__init__()
-
-    def destroy(self):
-        if not self.is_empty():
-            sid = self.id # saving id for logger; will be destroyed with execution of next line
-            super().destroy()
-            if sid is not None:
-                logger.debug('Session ' + sid + ' destroyed.')
-        self.reset()
 
 class SessionDriver(Remote):
 
+    class Session(jsonnote):
+
+        def __init__(self):
+            self.contents = { kwd_listener: None, kwd_sessionid: None }
+            self.filename = f_session
+            self.location = dir_session_default # default location for saved sessions
+            self.mustsave = True
+            self.mustdelete = True
+
+        @property
+        def listener(self):
+            return self.contents[kwd_listener]
+
+        @listener.setter
+        def listener(self, val):
+            self.contents[kwd_listener] = val
+
+        @property
+        def id(self):
+            return self.contents[kwd_sessionid]
+
+        @id.setter
+        def id(self, val):
+            self.contents[kwd_sessionid] = val
+
+        def reset(self):
+            self.__init__()
+
+        def destroy(self):
+            if not self.is_empty():
+                sid = self.id # saving id for logger; will be destroyed with execution of next line
+                super().destroy()
+                if sid is not None:
+                    logger.debug('Session ' + sid + ' destroyed.')
+            self.reset()
+
+
     def __init__(self, browser='Chrome', headless=True):
-        self.session = Session()
+        self.session = self.Session()
         self._browser = browser
-        if self._browser is not 'Safari': # no Options exists for Safari
+        if self._browser != 'Safari': # no Options exists for Safari
             self.options = eval(self._browser + 'Options()')
         self.options.headless = headless
 
@@ -70,16 +76,26 @@ class SessionDriver(Remote):
     def __listener_start__(self):
         if self._browser == 'Chrome':
             cmd = 'chromedriver'
-        else:
-            raise NotImplemented
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            subprocess.Popen(cmd)
-        else:
-            subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
+            if logger.getEffectiveLevel() == logging.DEBUG:
+                subprocess.Popen(cmd)
+            else:
+                subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
+            time.sleep(1)
 
     def __drv_launch__(self):
+        browser_profile = None
+        capabilities = {}
+        if self._browser == 'Firefox':
+                if self.session.listener is None:
+                    self.session.listener = listener_firefox
+        if self._browser == 'Chrome':
+            self.session.listener = listener_chrome
         self.__listener_start__()
-        super().__init__(command_executor=self.session.listener, desired_capabilities={}, options=self.options)
+        if self._browser == 'Firefox':
+            browser_profile = FirefoxProfile()
+            capabilities = DesiredCapabilities.FIREFOX
+            capabilities["marionette"] = False
+        super().__init__(command_executor=self.session.listener, desired_capabilities=capabilities, browser_profile = browser_profile, options=self.options)
 
     def quit(self):
         if self.client_is_connected():
