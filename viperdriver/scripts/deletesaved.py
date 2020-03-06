@@ -24,14 +24,13 @@ def main():
             fpath = args
 
     drv = SessionDriver()
-    drv.session.file.mustdelete=True
     drv.options.headless = headless
     if fpath != dir_session_default:
         drv.session.file.location = fpath
     if not drv.session.file.file_exists():
         logger.critical('No session found.')
     else:
-        drv.session.destroy()
+        drv.session.file.destroy()
 
 if __name__ == "__main__":
     main()

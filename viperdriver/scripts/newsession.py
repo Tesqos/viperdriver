@@ -21,13 +21,13 @@ logger = logging.getLogger(__name__)
 def make_session(browser='Chrome', location=dir_session_default, headless=True):
     drv = SessionDriver(browser)
     drv.options.headless = headless
-    drv.session.location = location
+    drv.session.file.location = location
     if not drv.session.file.file_exists():
         drv.launch()
         logger.debug(drv.session.file.full_path())
     else:
         logger.critical('Existing session found. Exiting.')
-    return drv.session.attributes
+    return drv.session.attributes.full
 
 def main():
 

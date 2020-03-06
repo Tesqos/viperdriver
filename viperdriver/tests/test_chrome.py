@@ -1,4 +1,4 @@
-from viperdriver import SessionDriver, f_session, kwd_listener, kwd_sessionid
+from viperdriver import SessionDriver, f_session
 from viperdriver.scripts.newsession import main as newsession
 from viperdriver.scripts.getsaved import main as getsaved
 from viperdriver.scripts.deletesaved import main as deletesaved
@@ -27,8 +27,8 @@ def test_launch_connect_to_existing_session():
     session_info = create_session()
     with SessionDriver() as drv:
         drv.launch(new_session=False)
-        exp = session_info[kwd_sessionid]
-        act = drv.session.id
+        exp = session_info['sessionid']
+        act = drv.session.attributes.id
         assert act == exp, 'Expected session id: ' + exp + 'actual: ' + act
     cleanup()
 
@@ -44,7 +44,7 @@ def test_client_connect_to_filed():
     session_info = create_session()
     with SessionDriver() as drv:
         drv.client_connect_to_filed()
-        assert drv.session.attributes == session_info
+        assert drv.session.attributes.full == session_info
         drv.session.file.mustdelete = True
         drv.quit()
     cleanup()

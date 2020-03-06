@@ -21,15 +21,14 @@ def main():
         if opt == '-l':
             fpath = args
     drv = SessionDriver()
-    drv.options.headless = headless
     if fpath != dir_session_default:
         drv.session.file.location = fpath
     if not drv.session.file.file_exists():
         logger.critical('No session found.')
     else:
-        drv.session.file.get_from_file()
-        logger.critical(drv.session.id)
-    return drv.session.attributes
+        drv.session.update(from_file=True)
+        logger.critical(drv.session.attributes.id)
+    return drv.session.attributes.full
 
 if __name__ == "__main__":
     main()
