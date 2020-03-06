@@ -18,9 +18,10 @@ def cleanup():
 def test_launch_brand_new_session():
     with SessionDriver() as drv:
         drv.launch(new_session=True)
-        assert not drv.session.is_empty(), 'Session info is empty!'
+        assert not drv.session.file.is_empty(), 'Session info is empty!'
         drv.get('https://en.wikipedia.org/wiki/Sevastopol')
         assert drv.title == 'Sevastopol - Wikipedia', 'Wikipedia page about the legendary city is not diplayed.'
+    cleanup()
 
 def test_launch_connect_to_existing_session():
     session_info = create_session()
@@ -43,7 +44,7 @@ def test_client_connect_to_filed():
     session_info = create_session()
     with SessionDriver() as drv:
         drv.client_connect_to_filed()
-        assert drv.session.contents == session_info
-        drv.session.mustdelete = True
+        assert drv.session.attributes == session_info
+        drv.session.file.mustdelete = True
         drv.quit()
     cleanup()

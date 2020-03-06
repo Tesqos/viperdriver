@@ -23,13 +23,13 @@ def main():
     drv = SessionDriver()
     drv.options.headless = headless
     if fpath != dir_session_default:
-        drv.session.location = fpath
-    if not drv.session.file_exists():
+        drv.session.file.location = fpath
+    if not drv.session.file.file_exists():
         logger.critical('No session found.')
     else:
-        drv.session.get_from_file()
+        drv.session.file.get_from_file()
         logger.critical(drv.session.id)
-    return drv.session.contents
+    return drv.session.attributes
 
 if __name__ == "__main__":
     main()

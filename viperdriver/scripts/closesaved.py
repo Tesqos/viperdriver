@@ -12,7 +12,7 @@ import logging
 
 from viperdriver import SessionDriver, dir_session_default, logger, loggers_set
 
-def main():
+def main(browser='Chrome'):
     fpath = dir_session_default
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'l:dhv', [])
@@ -28,9 +28,9 @@ def main():
             fpath = args
         if opt == '-v':
             loggers_set(logging.DEBUG)
-    drv = SessionDriver()
-    drv.session.location = fpath
-    if drv.session.file_exists():
+    drv = SessionDriver(browser)
+    drv.session.file.location = fpath
+    if drv.session.file.file_exists():
         drv.launch(new_session=False)
         drv.quit()
     else:

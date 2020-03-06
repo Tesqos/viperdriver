@@ -18,16 +18,16 @@ from viperdriver import SessionDriver, dir_session_default, logger, loggers_set
 
 logger = logging.getLogger(__name__)
 
-def make_session(location=dir_session_default, headless=True):
-    drv = SessionDriver()
+def make_session(browser='Chrome', location=dir_session_default, headless=True):
+    drv = SessionDriver(browser)
     drv.options.headless = headless
     drv.session.location = location
-    if not drv.session.file_exists():
+    if not drv.session.file.file_exists():
         drv.launch()
-        logger.debug(drv.session.full_path())
+        logger.debug(drv.session.file.full_path())
     else:
         logger.critical('Existing session found. Exiting.')
-    return drv.session.contents
+    return drv.session.attributes
 
 def main():
 
@@ -52,7 +52,7 @@ def main():
         if opt == '-v':
             loggers_set(logging.DEBUG)
 
-    return make_session(fpath, headless)
+    return make_session(location=fpath, headless=headless)
 
 if __name__ == "__main__":
     main()
