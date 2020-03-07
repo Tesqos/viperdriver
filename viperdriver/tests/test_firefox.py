@@ -6,7 +6,7 @@ from viperdriver.scripts.closesaved import close_saved_session as closesaved
 import pytest
 import os
 
-browser = 'Chrome'
+browser = 'Firefox'
 
 def create_session():
         newsession(browser)

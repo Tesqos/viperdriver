@@ -30,18 +30,18 @@ def make_session(browser='Chrome', location=dir_session_default, headless=True):
     return drv.session.attributes.full
 
 def main():
-
-    # Do not remove. This assignments needed if launched as a script while efault arguments of make_session() needed if run from shell.
     fpath = dir_session_default
     headless = True
-
+    browser ='Chrome'
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'avhl:', [])
+        opts, args = getopt.getopt(sys.argv[1:], 'ab:vhl:', [])
     except getopt.GetoptError as err:
         logger.error(err)
         logger.info(__doc__)
         sys.exit(2)
     for opt, args in opts:
+        if opt == '-b':
+            browser = args
         if opt == '-h':
             logger.critical(__doc__)
             sys.exit()
@@ -52,7 +52,7 @@ def main():
         if opt == '-v':
             loggers_set(logging.DEBUG)
 
-    return make_session(location=fpath, headless=headless)
+    return make_session(browser=browser, location=fpath, headless=headless)
 
 if __name__ == "__main__":
     main()

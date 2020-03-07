@@ -23,6 +23,7 @@ from jsonnote import jsonnote
 
 logger = logging.getLogger(__name__)
 
+default_listener_firefox = server + ':' + port_firefox
 
 class SessionDriver(Remote):
 
@@ -76,10 +77,12 @@ class SessionDriver(Remote):
         class _listener:
 
             def __init__(self, browser):
+                self._chrome_driver_name = 'chromedriver'
+                self._firefox_driver_name = 'geckodriver'
                 self._addr = server
                 self._port = ''
                 self._browser = browser
-                self.__url_initialize__()
+                self.__initialize__()
 
             @property
             def address(self):
@@ -101,37 +104,46 @@ class SessionDriver(Remote):
             def full(self):
                 return self._addr + ':' + self._port
 
-            def launch(self):
-                cmd = self.__launching_command__()
+            @full.setter
+            def full(self, val):
+                val = val.split(':')
+                self.address = val[0]
+                self.port = val[1]
+
+            def launch(self, default=False):
+                cmd = self.__launching_command__(default)
                 if logger.getEffectiveLevel() == logging.DEBUG:
                     subprocess.Popen(cmd)
                 else:
                     subprocess.Popen(cmd, stdout=DEVNULL, stderr=DEVNULL)
                 time.sleep(1)
 
-            def __launching_command__(self):
+            def __launching_command__(self, default=True):
                 if self._browser == 'Chrome':
                     return self.__chrome_command__()
                 if self._browser == 'Firefox':
-                    return self.__firefox_command__()
+                    if default:
+                        return self._firefox_driver_name
+                    else:
+                        return self.__firefox_command_for_free_port__()
 
-            def __url_initialize__(self):
+            def __initialize__(self):
                 if self._browser == 'Chrome':
                     self.port = port_chrome
                 if self._browser == 'Firefox':
                     self.port = port_firefox
 
             def __chrome_command__(self):
-                return 'chromedriver'
+                return self._chrome_driver_name
 
-            def __firefox_command__(self):
+            def __firefox_command_for_free_port__(self):
                 def find_free_port():
                     s = socket.socket()
-                    s.bind((server, 0))            # Bind to a free port provided by the host.
+                    s.bind((server, 0))
                     return str(s.getsockname()[1])
                 new = find_free_port()
                 self.port = new
-                return ['geckodriver', '--port', new]
+                return [self._firefox_driver_name, '--port', new]
 
         def __init__(self, browser):
             self._browser = browser
@@ -148,9 +160,11 @@ class SessionDriver(Remote):
                     self.file.file_exists()
                     self.file.get_from_file()
                     self.attributes.full = self.file.contents
+                    self.listener.full = self.attributes.listener
                 except:
                     logger.critical('Could not load session attributes from file: ' + self.file.full_path())
             else:
+                self.attributes.listener = self.listener.full
                 self.file.contents = self.attributes.full
 
         def destroy(self):
@@ -176,13 +190,18 @@ class SessionDriver(Remote):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.quit()
 
-    def __drv_launch__(self):
-        self.session.listener.launch()
-        super().__init__(command_executor=self.session.listener.full, desired_capabilities={}, options=self.options)
+    def __drv_launch__(self, default=True):
+        self.session.listener.launch(default)
+        self.session.update()
+        if self.session.attributes.browser == 'Firefox' and default:
+            command_executor = default_listener_firefox
+        else:
+            command_executor=self.session.listener.full
+        super().__init__(command_executor=command_executor, desired_capabilities={}, options=self.options)
         logger.debug('Session ' + self.session_id + ' launched.')
 
     def client_start_new(self):
-        self.__drv_launch__()
+        self.__drv_launch__(default=False)
         self.session.attributes.id = self.session_id
         self.session.update()
         if self.session.file.mustsave:
@@ -190,14 +209,14 @@ class SessionDriver(Remote):
         logger.debug('NEW session ' + self.session.attributes.id + ' created.')
 
     def client_connect(self, session_info):
+        self.__drv_launch__(default=True)
+        self.close()
         if session_info is not None and session_info is not []:
             self.session.attributes.full = session_info
+            self.session.listener.full = self.session.attributes.listener
             self.session.update()
-        logger.debug('Attempting to connect to existing session ' + self.session.attributes.id)
-        self.__drv_launch__()
-        self.close()
         if self.session.attributes.browser == 'Firefox':
-            self.command_executor._url = self.listener.full
+            self.command_executor._url = self.session.listener.full
         self.session_id = self.session.attributes.id
         logger.debug('Connected to EXISTING session ' + self.session_id + '.')
 
