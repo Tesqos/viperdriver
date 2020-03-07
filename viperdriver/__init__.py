@@ -1,9 +1,9 @@
 import logging
 import os
 
-from viperlib import logger as logger_viperlib
+from jsonnote import logger as logger_jsonnote
 
-__version__ = '0.57.6'
+__version__ = '0.57.7'
 
 dir_session_default = __path__[0] + os.sep + 'tmp' # default location of the session file
 
@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 
 console = logging.StreamHandler()
 logger.addHandler(console)
-logger_viperlib.addHandler(logger)
+logger_jsonnote.addHandler(logger)
 
 def loggers_set(level):
     logger.setLevel(level)
-    logger_viperlib.setLevel(level)
+    logger_jsonnote.setLevel(level)
