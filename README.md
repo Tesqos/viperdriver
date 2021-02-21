@@ -1,2 +1,2 @@
 # viperdriver
- Custom expansion to Selenium WebDriver.
+ Custom expansion of Selenium WebDriver.
